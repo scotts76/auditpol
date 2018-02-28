@@ -1,4 +1,4 @@
-define audit::policy (
+define auditpol::policy (
     $policy = $name,
     $success,
     $failure,

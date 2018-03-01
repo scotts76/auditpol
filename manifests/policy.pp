@@ -18,15 +18,23 @@ define auditpol::policy (
   elsif $failure == "true" and $success == "false" {
     exec { $policy:
       command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Enable /success:'No Auditing'",
-      onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'No Auditing') { exit 1 }",
+      onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'Failure') { exit 1 }",
       path    => 'C:\Windows\System32',
       provider => powershell,
     }
   }
-  else {     
+  elsif $failure == "true" and $success == "true" {
     exec { $policy:
       command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Enable /success:Enable",
       onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'Success and Failure') { exit 1 }",
+      path    => 'C:\Windows\System32',
+      provider => powershell,
+    }
+  }
+  else {         
+    exec { $policy:
+      command => "auditpol.exe /set /subcategory:\"$policy\" /failure:'No Auditing' /success:'No Auditing'",
+      onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'No Auditing') { exit 1 }",
       path    => 'C:\Windows\System32',
       provider => powershell,
     }

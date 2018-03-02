@@ -7,23 +7,23 @@ define auditpol::policy (
   validate_bool($success)
   validate_bool($failure)
 
-  if $success == "true" and $failure == "false" {
+  if $success == true and $failure == false {
     exec { $policy:
-      command  => "auditpol.exe /set /subcategory:\"$policy\" /failure:'No Auditing' /success:Enable",
+      command  => "auditpol.exe /set /subcategory:\"$policy\" /failure:Disable /success:Enable",
       onlyif   => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'Success') { exit 1 }",
       path     => 'C:\Windows\System32',
       provider => powershell,
     }
   }
-  elsif $failure == "true" and $success == "false" {
+  elsif $failure == true and $success == false {
     exec { $policy:
-      command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Enable /success:'No Auditing'",
+      command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Enable /success:Disable",
       onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'Failure') { exit 1 }",
       path    => 'C:\Windows\System32',
       provider => powershell,
     }
   }
-  elsif $failure == "true" and $success == "true" {
+  elsif $failure == true and $success == true {
     exec { $policy:
       command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Enable /success:Enable",
       onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'Success and Failure') { exit 1 }",
@@ -33,7 +33,7 @@ define auditpol::policy (
   }
   else {         
     exec { $policy:
-      command => "auditpol.exe /set /subcategory:\"$policy\" /failure:'No Auditing' /success:'No Auditing'",
+      command => "auditpol.exe /set /subcategory:\"$policy\" /failure:Disable /success:Disable",
       onlyif  => "if ($(auditpol.exe /get /subcategory:\"$policy\" /r).split(',')[11] -eq 'No Auditing') { exit 1 }",
       path    => 'C:\Windows\System32',
       provider => powershell,
